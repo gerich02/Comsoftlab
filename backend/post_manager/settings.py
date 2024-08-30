@@ -31,6 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "post_messages.apps.PostMessagesConfig",
+    "auth_data.apps.AuthDataConfig",
+    "daphne",
+    'rest_framework',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -68,7 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "post_manager.wsgi.application"
-
+ASGI_APPLICATION = "post_manager.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
