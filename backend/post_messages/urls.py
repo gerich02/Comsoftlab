@@ -1,12 +1,13 @@
-from django.urls import include, path
-from rest_framework.routers import DefaultRouter
-
-from .views import MessageViewSet
-
-router_v1 = DefaultRouter()
-
-router_v1.register('messages', MessageViewSet, basename='messages')
+from django.urls import path
+from . import views
 
 urlpatterns = [
-    path('', include(router_v1.urls)),
+    path("", views.index, name="index"),
+    path(
+        "add-login/", views.add_login, name="add-login"
+    ),
+    path(
+        "get-logins/", views.get_logins, name="get-logins"
+    ),
+    path("messages/", views.messages_page, name="messages-page"),
 ]

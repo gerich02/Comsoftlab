@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная страница</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #login-form {
+            margin-bottom: 20px;
+        }
+        #logins-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Управление логинами и сообщениями</h1>
+
+    <form id="login-form" method="post">
+        {% csrf_token %}
+        <label for="login">Логин:</label>
+        <input type="text" id="login" name="login" required>
+        <label for="password">Пароль:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Добавить логин</button>
+    </form>
+
+    <h2>Список логинов</h2>
+    <div id="logins-container">
+    </div>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        $('#login-form').submit(function(event) {
+            event.preventDefault();
+            const login = $('#login').val();
+            const password = $('#password').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '/add-login/',
+                headers: { 'X-CSRFToken': csrftoken },
+                data: { login: login, password: password },
+                success: function(response) {
+                    alert('Логин добавлен!');
+                    loadLogins();
+                },
+                error: function(xhr, status, error) {
+                    alert('Ошибка при добавлении логина: ' + error);
+                }
+            });
+        });
+
+        function loadLogins() {
+            $.get('/get-logins/', function(response) {
+                const logins = response.logins;
+                $('#logins-container').empty();
+                logins.forEach(function(login) {
+                    $('#logins-container').append(`
+                        <div>
+                            ${login.login}
+                            <button onclick="openMessagesPage(${login.id})">Получить сообщения</button>
+                        </div>
+                    `);
+                });
+            }).fail(function(xhr, status, error) {
+                alert('Ошибка при загрузке логинов: ' + error);
+            });
+        }
+
+        function openMessagesPage(loginId) {
+            window.open(`/messages/?login_id=${loginId}`, '_blank');
+        }
+
+        loadLogins();
+    </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Сообщения</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        #progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            margin: 20px 0;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 30px;
+            background-color: #4caf50;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>Сообщения</h1>
+
+    <div id="progress-container">
+        <div id="progress-bar">Ожидание...</div>
+    </div>
+
+    <div id="message-count">Всего сообщений проверено: 0</div>
+
+    <h2>Сообщения</h2>
+    <table id="messages-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Тема</th>
+                <th>Дата отправки</th>
+                <th>Дата получения</th>
+                <th>Текст сообщения</th>
+                <th>Список вложений</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const loginId = urlParams.get('login_id');
+        const socket = new WebSocket('ws://localhost:8000/ws/messages/');
+
+        socket.onopen = function(event) {
+            socket.send(JSON.stringify({'login_id': loginId}));
+        };
+
+        socket.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            console.log('Received data:', data);
+
+            if (data.status === 'reading') {
+                $('#progress-bar').text('Чтение сообщений...').css('width', data.progress + '%');
+                $('#message-count').text(`Всего сообщений проверено: ${data.initial_message_count}`);
+            } else if (data.status === 'loading') {
+                $('#progress-bar').text('Загрузка сообщений...').css('width', data.progress + '%');
+                if (data.message_count !== undefined) {
+                    $('#message-count').text(`Всего сообщений: ${data.message_count}`);
+                }
+                $('#messages-table tbody').empty();
+                if (data.messages) {
+                    data.messages.forEach(function(message) {
+                        $('#messages-table tbody').append(`
+                            <tr>
+                                <td>${message.id}</td>
+                                <td>${message.theme}</td>
+                                <td>${message.send_date}</td>
+                                <td>${message.receipt_date}</td>
+                                <td>${message.text}</td>
+                                <td>${message.attachments_list}</td>
+                            </tr>
+                        `);
+                    });
+                }
+            } else if (data.status === 'completed') {
+                $('#progress-bar').text('Завершено');
+                if (data.message_count !== undefined) {
+                    $('#message-count').text(`Всего сообщений: ${data.message_count}`);
+                }
+            }
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+
+        socket.onclose = function(event) {
+            if (!event.wasClean) {
+                console.error('WebSocket connection error:', event.reason);
+            }
+        };
+    </script>
+</body>
+</html>
