@@ -12,25 +12,24 @@ def add_login(request):
         login = request.POST.get("login")
         password = request.POST.get("password")
 
+        if not login:
+            return JsonResponse(
+                {
+                    "status": "error",
+                    "message": "Login is required"
+                }
+            )
+
         login_instance, created = Login.objects.update_or_create(
             login=login,
             defaults={"password": password},
         )
 
-        if created:
-            return JsonResponse(
-                {
-                    "status": "created",
-                    "message": "New login created successfully"
-                }
-            )
-        else:
-            return JsonResponse(
-                {
-                    "status": "updated",
-                    "message": "Existing login updated successfully"
-                }
-            )
+        return JsonResponse({
+            "status": "created" if created else "updated",
+            "message": "Login added successfully",
+            "login_id": login_instance.id
+        })
 
     return JsonResponse(
         {
