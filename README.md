@@ -27,11 +27,16 @@ docker run --name redis_container -p 6379:6379 -d redis:latest
     ```
     git clone git@github.com:gerich02/Comsoftlab_post_manager.git
     ```
-2. Перейдите в папку с проектом:
+2. Создайте и запустите виртуальное окружение:
+    ```
+    python -m venv venv
+    source venv/Scripts/activate
+    ```
+3. Перейдите в папку с проектом:
     ```
     cd Comsoftlab_post_manager
     ```
-2. Создайте файл .env и заполните его своими данными:
+4. Создайте файл .env и заполните его своими данными:
     ```bash
     POSTGRES_USER=user                      #Имя пользователя для подключения к базе данных PostgreSQL.
     POSTGRES_PASSWORD=password              #Пароль пользователя для подключения к базе данных PostgreSQL.
@@ -41,12 +46,17 @@ docker run --name redis_container -p 6379:6379 -d redis:latest
     SECRET_KEY='secret_key'                 #Секретный ключ приложения Django, используемый для шифрования данных и безопасности. 
     ALLOWED_HOSTS='localhost,127.0.0.1'     #писок доменных имен или IP-адресов, которым разрешено подключаться к приложению.
     ```
-3. Выполните миграции:
+
+5. Установите зависимости:
     ```
     cd backend/
+    pip install -r requirements.txt
+    ```
+6. Выполните миграции:
+    ```
     py manage.py migrate
     ```
-4. Запустите сервер:
+7. Запустите сервер:
     ```
     py manage.py runserver
     ```
