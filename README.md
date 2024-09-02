@@ -1,5 +1,4 @@
-# Comsoftlab
-Test task for Comsoftlab
+# Test task for Comsoftlab
 #  Описание проекта "Comsoftlab_post_manager"
 
 ## Описание
