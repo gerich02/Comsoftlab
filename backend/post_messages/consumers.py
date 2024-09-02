@@ -8,6 +8,8 @@ logger = logging.getLogger(__name__)
 
 
 class Messages(WebsocketConsumer):
+    """Консьюмер для обработки сообщений."""
+
     def connect(self):
         self.accept()
 

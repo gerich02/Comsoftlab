@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 def decode_header_part(header_part):
+    """Декодирует заголовок сообщения электронной почты."""
 
     decoded_parts = decode_header(header_part)
     decoded_header = ""
@@ -21,6 +22,7 @@ def decode_header_part(header_part):
 
 
 def fetch_messages(login):
+    """Извлекает сообщения из почтового ящика и сохраняет их в базе данных."""
 
     messages = []
 

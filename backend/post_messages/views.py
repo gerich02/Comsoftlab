@@ -4,10 +4,14 @@ from .models import Login
 
 
 def index(request):
+    """Главная страница."""
+
     return render(request, "index.html")
 
 
 def add_login(request):
+    """Добавление логина/пароля."""
+
     if request.method == "POST":
         login = request.POST.get("login")
         password = request.POST.get("password")
@@ -39,10 +43,7 @@ def add_login(request):
     )
 
 
-def get_logins(request):
-    logins = Login.objects.all().values("id", "login")
-    return JsonResponse({"logins": list(logins)})
-
-
 def messages_page(request):
+    """страница со списком писем."""
+
     return render(request, "messages.html")

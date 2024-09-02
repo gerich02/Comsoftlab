@@ -87,7 +87,7 @@
         <div id="progress-bar">Ожидание...</div>
     </div>
 
-    <div id="message-count">Всего сообщений проверено: 0</div>
+    <div id="message-count">Всего сообщений: 0</div>
 
     <h2>Сообщения</h2>
     <table id="messages-table">
@@ -127,6 +127,11 @@
         const loginId = urlParams.get('login_id');
         const socket = new WebSocket('ws://localhost:8000/ws/messages/');
 
+        function updateMessageCount() {
+            const messageCount = $('#messages-table tbody tr').length;
+            $('#message-count').text(`Всего сообщений: ${messageCount}`);
+        }
+
         socket.onopen = function(event) {
             socket.send(JSON.stringify({'login_id': loginId}));
         };
@@ -137,12 +142,8 @@
 
             if (data.status === 'reading') {
                 $('#progress-bar').text('Чтение сообщений...').css('width', data.progress + '%');
-                $('#message-count').text(`Всего сообщений проверено: ${data.initial_message_count}`);
             } else if (data.status === 'loading') {
                 $('#progress-bar').text('Загрузка сообщений...').css('width', data.progress + '%');
-                if (data.message_count !== undefined) {
-                    $('#message-count').text(`Всего сообщений: ${data.message_count}`);
-                }
                 $('#messages-table tbody').empty();
                 if (data.messages) {
                     data.messages.forEach(function(message) {
@@ -159,11 +160,10 @@
                         `);
                     });
                 }
+                updateMessageCount();
             } else if (data.status === 'completed') {
                 $('#progress-bar').text('Завершено');
-                if (data.message_count !== undefined) {
-                    $('#message-count').text(`Всего сообщений: ${data.message_count}`);
-                }
+                updateMessageCount();
             }
         };
 
